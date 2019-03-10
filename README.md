@@ -15,7 +15,7 @@
 
 # order-match
 
-<!-- description -->
+The account book to record the match of order asks and bids.
 
 ## Install
 
@@ -26,8 +26,39 @@ $ npm i order-match
 ## Usage
 
 ```js
-import order_match from 'order-match'
+const OrderMatch = require('order-match')
+
+const om = new OrderMatch()
 ```
+
+## new OrderMatch()
+
+### om.ask(price, amount)
+
+### om.bid(price, amount)
+
+### om.trades(limit)
+
+### om.simulate(price)
+
+Returns `Object`
+
+- **action** `Enum<ASK|BID>`
+- **orders**
+
+### Getter: om.price
+
+Get the current price
+
+### Getter: om.asks
+
+Get all the asks
+
+### Getter: om.bids
+
+Get all the bids
+
+### Event: 'trade'
 
 ## License
 
