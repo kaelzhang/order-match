@@ -1,6 +1,6 @@
 {
   "name": "order-match",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "The account book to record the match of order asks and bids.",
   "main": "src/index.js",
   "scripts": {
