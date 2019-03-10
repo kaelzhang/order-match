@@ -18,44 +18,44 @@ module.exports = class OrderMatch extends EE {
       compare: compareOrder
     })
 
-    this._trades = []
     this._price = 0
   }
 
-  simulate (price) {
-
-  }
-
-  _makeDeal ({
-    price,
-    amount: orderAmount
-  }, orderBook, max, type) {
+  _makeDeal (orderAmount, orderBook, maxIndex, type) {
     let i = 0
+    let dealPrice
+    let left = orderAmount
 
     const tearDown = () => {
       orderBook.splice(0, i)
+      this._price = dealPrice
       return {
-        left: orderAmount
+        left
       }
     }
 
-    while (i <= max) {
-      const {amount} = orderBook[i]
-      if (amount > orderAmount) {
-        orderBook[i].amount -= orderAmount
-        orderAmount = 0
+    while (i <= maxIndex) {
+      const {
+        amount,
+        price: orderPrice
+      } = orderBook[i]
+      if (amount > left) {
+        orderBook[i].amount -= left
         this.emit('trade', {
-          price,
-          amount: orderAmount,
+          price: orderPrice,
+          amount: left,
           type
         })
+        left = 0
+        dealPrice = orderPrice
         return tearDown()
       }
 
-      orderAmount -= amount
+      left -= amount
       i ++
+      dealPrice = orderPrice
       this.emit('trade', {
-        price,
+        price: orderPrice,
         amount,
         type
       })
@@ -73,14 +73,32 @@ module.exports = class OrderMatch extends EE {
     }
 
     const [min] = this[receiveKey].find(order)
+    let leftAmount = amount
+
+    if (min !== - 1) {
+      const {
+        left
+      } = this._makeDeal(amount, this[receiveKey], min, sendType.toUpperCase())
+
+      if (left === 0) {
+        return
+      }
+
+      leftAmount = left
+    }
 
     const {
-      left
-    } = this._makeDeal(order, this[receiveKey], min, sendType)
-    this[sendKey].insert({
+      index,
+      inserted
+    } = this[sendKey].insert({
       price,
-      amount: left
+      amount: leftAmount
     })
+
+    // The price exists
+    if (inserted === false) {
+      this[sendKey][index].amount += leftAmount
+    }
   }
 
   ask (price, amount) {
@@ -101,9 +119,5 @@ module.exports = class OrderMatch extends EE {
 
   get price () {
     return this._price
-  }
-
-  trades (limit) {
-
   }
 }

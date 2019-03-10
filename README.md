@@ -33,11 +33,18 @@ const om = new OrderMatch()
 
 ## new OrderMatch()
 
+Creates an acount book of asks and bids
+
 ### om.ask(price, amount)
+
+- **price** `number`
+- **amount** `number`
+
+Ask a price
 
 ### om.bid(price, amount)
 
-### om.trades(limit)
+Bid with a price
 
 ### om.simulate(price)
 
@@ -46,19 +53,29 @@ Returns `Object`
 - **action** `Enum<ASK|BID>`
 - **orders**
 
-### Getter: om.price
+### Getter: om.price `number`
 
-Get the current price
+Get the current price. The initial price is `0`.
 
-### Getter: om.asks
+### Getter: om.asks `Array<{price, amount}>`
 
-Get all the asks
+Get all the asks which is an ascending array of `{price, amount}` ordered by price
 
-### Getter: om.bids
+### Getter: om.bids `Array<{price, amount}>`
 
-Get all the bids
+Get all the bids which is an decendng array of `{price, amount}` ordered by price
 
 ### Event: 'trade'
+
+- **e.price** `number` the actual price of the trade
+- **e.amount** `number` the amount of the trade
+- **e.type** `Enum<ASK|BID>`
+
+```js
+om.on('trade', e => {
+  console.log()
+})
+```
 
 ## License
 

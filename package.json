@@ -1,7 +1,7 @@
 {
   "name": "order-match",
   "version": "1.0.0",
-  "description": "order-match",
+  "description": "The account book to record the match of order asks and bids.",
   "main": "src/index.js",
   "scripts": {
     "test": "nyc ava --timeout=10s",
@@ -17,7 +17,12 @@
     "url": "git://github.com/kaelzhang/order-match.git"
   },
   "keywords": [
-    "order-match"
+    "order-match",
+    "asks",
+    "bids",
+    "trade",
+    "stock",
+    "bitcoin"
   ],
   "engines": {
     "node": ">= 6"
