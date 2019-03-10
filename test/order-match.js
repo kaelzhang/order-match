@@ -1,9 +1,9 @@
 const test = require('ava')
 const OrderMatch = require('../src')
 
-const o = new OrderMatch()
+test('complex', t => {
+  const o = new OrderMatch()
 
-test.serial('complex', t => {
   t.is(o.price, 0, 'init')
 
   o.ask(100, 20)
@@ -28,6 +28,7 @@ test.serial('complex', t => {
     price: 50,
     amount: 5
   }, 'o.asks, after first bid')
+  t.is(o.price, 50, 'price, 1st')
 
   o.bid(40, 10)
   t.is(o.bids.length, 1, 'length, after second bid')
@@ -45,6 +46,7 @@ test.serial('complex', t => {
     price: 120,
     amount: 15
   }, 'bids[0], 3rd')
+  t.is(o.price, 100, 'price, 3rd')
 
   o.bid(120, 5)
 
@@ -64,6 +66,7 @@ test.serial('complex', t => {
       t.is(price, 120, 'trade price')
       t.is(amount, 20, 'trade amount')
       t.is(type, 'ASK', 'trade type')
+      t.is(o.price, 120, 'price, 5rd')
       has = true
       return
     }
@@ -71,6 +74,7 @@ test.serial('complex', t => {
     t.is(price, 40, 'trade price')
     t.is(amount, 10, 'trade amount')
     t.is(type, 'ASK', 'trade type')
+    t.is(o.price, 40, 'price, 5rd')
   })
 
   o.ask(0, 100)
@@ -80,4 +84,22 @@ test.serial('complex', t => {
     price: 0,
     amount: 70
   }, 'asks[0], 5th(ask)')
+})
+
+test('resistance', t => {
+  const o = new OrderMatch()
+
+  t.is(o.resistance(100), undefined, 'no resistance')
+  t.is(o.resistance(0), undefined, 'price not change')
+
+  o.ask(100, 50)
+  o.ask(120, 50)
+
+  t.deepEqual(o.resistance(130), {
+    action: 'BID',
+    orders: [
+      {price: 100, amount: 50},
+      {price: 120, amount: 50}
+    ]
+  }, 'has resistance')
 })

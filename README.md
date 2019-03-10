@@ -46,12 +46,33 @@ Ask a price
 
 Bid with a price
 
-### om.simulate(price)
+### om.resistance(price): undefined | Object
 
-Returns `Object`
+Returns the plan against the resistance if we want to reach the `price` level.
+- `undefined` which indicates there is no resistance.
+- `Object`
+  - **action** `Enum<ASK|BID>`
+  - **orders** `Array<{price, amount}>`
 
-- **action** `Enum<ASK|BID>`
-- **orders**
+```js
+const om = new OrderMatch()
+
+om.ask(100, 50)
+om.ask(120, 10)
+
+// Then the asks are:
+// price: 120, amount: 10
+// price: 100, amount: 50
+
+const plan = om.resistance(130)
+console.log(plan.action)
+// BID, we need bid orders to buy the asks
+console.log(plan.orders)
+// [
+//   {price: 100, amount: 50},
+//   {price: 120, amount: 50}
+// ]
+```
 
 ### Getter: om.price `number`
 
@@ -59,11 +80,11 @@ Get the current price. The initial price is `0`.
 
 ### Getter: om.asks `Array<{price, amount}>`
 
-Get all the asks which is an ascending array of `{price, amount}` ordered by price
+Get current asks which is an ascending array of `{price, amount}` ordered by price
 
 ### Getter: om.bids `Array<{price, amount}>`
 
-Get all the bids which is an decendng array of `{price, amount}` ordered by price
+Get current bids which is an decendng array of `{price, amount}` ordered by price
 
 ### Event: 'trade'
 

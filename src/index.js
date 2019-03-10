@@ -2,6 +2,7 @@ const EE = require('events')
 const SequencedArray = require('sequenced-array')
 
 const compareOrder = (a, b) => a.price - b.price
+const toUpperCase = s => s.toUpperCase()
 
 module.exports = class OrderMatch extends EE {
   constructor () {
@@ -23,12 +24,10 @@ module.exports = class OrderMatch extends EE {
 
   _makeDeal (orderAmount, orderBook, maxIndex, type) {
     let i = 0
-    let dealPrice
     let left = orderAmount
 
     const tearDown = () => {
       orderBook.splice(0, i)
-      this._price = dealPrice
       return {
         left
       }
@@ -41,19 +40,19 @@ module.exports = class OrderMatch extends EE {
       } = orderBook[i]
       if (amount > left) {
         orderBook[i].amount -= left
+        this._price = orderPrice
         this.emit('trade', {
           price: orderPrice,
           amount: left,
           type
         })
         left = 0
-        dealPrice = orderPrice
         return tearDown()
       }
 
       left -= amount
       i ++
-      dealPrice = orderPrice
+      this._price = orderPrice
       this.emit('trade', {
         price: orderPrice,
         amount,
@@ -78,7 +77,7 @@ module.exports = class OrderMatch extends EE {
     if (min !== - 1) {
       const {
         left
-      } = this._makeDeal(amount, this[receiveKey], min, sendType.toUpperCase())
+      } = this._makeDeal(amount, this[receiveKey], min, toUpperCase(sendType))
 
       if (left === 0) {
         return
@@ -98,6 +97,33 @@ module.exports = class OrderMatch extends EE {
     // The price exists
     if (inserted === false) {
       this[sendKey][index].amount += leftAmount
+    }
+  }
+
+  resistance (price) {
+    if (this._price === price) {
+      return
+    }
+
+    const up = price > this._price
+    const action = up
+      ? 'BID'
+      : 'ASK'
+
+    const depth = this[`_${
+      up
+        ? 'ask'
+        : 'bid'
+    }s`]
+    const [min, max] = depth.find({price})
+    if (min === -1) {
+      return
+    }
+
+    const orders = [].concat(depth.slice(0, max))
+    return {
+      action: toUpperCase(action),
+      orders
     }
   }
 
